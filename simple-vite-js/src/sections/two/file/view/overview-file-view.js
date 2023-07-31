@@ -24,23 +24,10 @@ import { _files, _folders } from 'src/_mock';
 import FileManagerFolderItem from 'src/sections/file-manager/file-manager-folder-item';
 import FileRecentItem from 'src/sections/file-manager/file-recent-item';
 import FileManagerNewFolderDialog from 'src/sections/file-manager/file-manager-new-folder-dialog';
-// import { UploadBox } from 'src/components/upload';
-// import FileStorageOverview from 'src/sections/file-manager/file-storage-overview';
-// import FileManagerPanel from 'src/sections/file-manager/file-manager-panel';
-// import FileManagerFolderItem from 'src/sections/file-manager/file-manager-folder-item';
-// import FileRecentItem from 'src/sections/file-manager/file-recent-item';
-// import FileManagerNewFolderDialog from 'src/sections/file-manager/file-manager-new-folder-dialog';
-// import { _files, _folders } from 'src/_mock';
-//
-// import FileWidget from '../../../file-manager/file-widget';
-// import FileUpgrade from '../../../file-manager/file-upgrade';
-// import FileRecentItem from '../../../file-manager/file-recent-item';
-// import FileDataActivity from '../../../file-manager/file-data-activity';
-// import FileStorageOverview from '../../../file-manager/file-storage-overview';
-// //
-// import FileManagerPanel from '../../../file-manager/file-manager-panel';
-// import FileManagerFolderItem from '../../../file-manager/file-manager-folder-item';
-// import FileManagerNewFolderDialog from '../../../file-manager/file-manager-new-folder-dialog';
+import { storage } from 'src/firebase';
+import { Button } from '@mui/material';
+import { ref, uploadBytes } from 'firebase/storage';
+
 
 // ----------------------------------------------------------------------
 
@@ -86,52 +73,28 @@ export default function OverviewFileView() {
           preview: URL.createObjectURL(file),
         })
       );
-
+      console.log(acceptedFiles[0])
+      setImageUpload(acceptedFiles[0])
       setFiles([...files, ...newFiles]);
     },
     [files]
   );
 
-  // const renderStorageOverview = (
-  //   <FileStorageOverview
-  //     total={GB}
-  //     chart={{
-  //       series: 76,
-  //     }}
-  //     data={[
-  //       {
-  //         name: 'Images',
-  //         usedStorage: GB / 2,
-  //         filesCount: 223,
-  //         icon: <Box component="img" src="/assets/icons/files/ic_img.svg" />,
-  //       },
-  //       {
-  //         name: 'Media',
-  //         usedStorage: GB / 5,
-  //         filesCount: 223,
-  //         icon: <Box component="img" src="/assets/icons/files/ic_video.svg" />,
-  //       },
-  //       {
-  //         name: 'Documents',
-  //         usedStorage: GB / 5,
-  //         filesCount: 223,
-  //         icon: <Box component="img" src="/assets/icons/files/ic_document.svg" />,
-  //       },
-  //       {
-  //         name: 'Other',
-  //         usedStorage: GB / 10,
-  //         filesCount: 223,
-  //         icon: <Box component="img" src="/assets/icons/files/ic_file.svg" />,
-  //       },
-  //     ]}
-  //   />
-  // );
-
+    const [imageUpload , setImageUpload]= useState(null)
+    const uploadImage = () => {
+      if (imageUpload == null) return;
+      const imageRef = ref(storage, `images/${imageUpload.name}`)
+      uploadBytes(imageRef , imageUpload).then (() => {
+        alert("image uploaded")
+      })
+    }
+    console.log(imageUpload)
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'xl'}>
         <Grid xs={12} md={6} lg={8}>
           <UploadBox
+            onChange={(event) => {setImageUpload(event.target.files[0])}}
             onDrop={handleDrop}
             placeholder={
               <Stack spacing={0.5} alignItems="center" sx={{ color: 'text.disabled' }}>
@@ -147,7 +110,8 @@ export default function OverviewFileView() {
               borderRadius: 1.5,
             }}
           />
-
+          <Button onClick={uploadImage}>upload</Button>
+          <img src={imageUpload}/>
           <div>
             <FileManagerPanel
               title="Folders"
